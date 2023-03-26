@@ -19,7 +19,6 @@ import javafx.util.Duration;
 public class testing3d extends GameApplication {
 
     private Camera3D camera;
-    double cameraY = 0;
     Entity player;
     Entity ground;
     double distance = 7;
