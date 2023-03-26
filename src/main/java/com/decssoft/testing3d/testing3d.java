@@ -109,6 +109,7 @@ public class testing3d extends GameApplication {
                 .from(new Point3D(player.getTransformComponent().getRotationX(), player.getTransformComponent().getRotationY(), player.getTransformComponent().getRotationZ()))
                 .to(new Point3D(camera.getTransform().getRotationX(), camera.getTransform().getRotationY(), camera.getTransform().getRotationZ()))
                 .buildAndPlay();
+        //the following code updates the player 3d direction to be the same as the camera
         Point3D look = camera.getTransform().getDirection3D().add(player.getPosition3D());
         player.getTransformComponent().lookAt(look);
     }
