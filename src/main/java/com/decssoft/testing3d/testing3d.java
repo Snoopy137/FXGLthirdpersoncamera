@@ -91,9 +91,11 @@ public class testing3d extends GameApplication {
     @Override
     protected void onUpdate(double tpf) {
         //this code finds the object position and sets the camera position and directino to move around the object always looking at it
-        double xset = distance * Math.sin(Math.toRadians(camera.getTransform().getRotationY())) * -1 + player.getX();
-        double zset = distance * Math.cos(Math.toRadians(camera.getTransform().getRotationY())) * -1 + player.getZ();
-        double yset = distance * Math.sin(Math.toRadians(camera.getTransform().getRotationX())) + player.getY() + player.getScaleY() - 2;
+        double yset = distance * Math.sin(Math.toRadians(camera.getTransform().getRotationX())) + player.getY();
+        double dist = distance * Math.cos(Math.toRadians(camera.getTransform().getRotationX()));
+        double zset = dist * Math.cos(Math.toRadians(camera.getTransform().getRotationY())) * -1 + player.getZ();
+        double xset = dist * Math.sin(Math.toRadians(camera.getTransform().getRotationY())) * -1 + player.getX();
+        camera.getTransform().setPosition3D(xset, yset, zset);
         camera.getTransform().setPosition3D(xset, yset, zset);
         //this line makes the object to rotate along with the camera, if you comment this line and do no remove the comments
         //from inputs that move the player the 3d direction will not be updated
