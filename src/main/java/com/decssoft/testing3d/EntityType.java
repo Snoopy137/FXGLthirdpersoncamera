@@ -6,5 +6,5 @@ package com.decssoft.testing3d;
  */
 public enum EntityType {
 
-    FLOOR, WALL, ROOF, PLAYER
+    FLOOR, WALL, ROOF, PLAYER, TERRAIN
 }
