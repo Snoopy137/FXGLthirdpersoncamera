@@ -78,7 +78,7 @@ public class GameFactory implements EntityFactory {
         SequentialTransition calloutAnimation = new SequentialTransition();
         return entityBuilder(data)
                 .type(EntityType.PLAYER)
-                .bbox(BoundingShape.box3D(.25, .25, 1))
+                .bbox(BoundingShape.box3D(.26, .26, 1.1))
                 .view(root)
                 .collidable()
                 .buildAndAttach();
