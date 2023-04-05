@@ -49,7 +49,7 @@ public class testing3d extends GameApplication {
         player = spawn("player", 0, 4.8, 0);
         animation.createAnimation(player);
         camera = getGameScene().getCamera3D();
-        ground = spawn("floor", 0, 5, 0);
+        ground = spawn("pool", 0, 5, 0);
         var rightwall = spawn("wallr", 10, 0, .2);
         var leftwall = spawn("walll", -10, 0, 0.2);
         //var roof = spawn("roof", 0, -5, 0);
@@ -154,10 +154,16 @@ public class testing3d extends GameApplication {
             camera.getTransform().setPosition3D(xset, yset, zset);
             playerRotate();
         } else {
-            double yset = .2 * Math.sin(Math.toRadians(camera.getTransform().getRotationX() - 45)) + player.getY();
-            double dist = (.2 * Math.cos(Math.toRadians(camera.getTransform().getRotationX())));
-            double zset = dist * Math.cos(Math.toRadians(camera.getTransform().getRotationY() - 45)) * -1 + player.getZ();
-            double xset = dist * Math.sin(Math.toRadians(camera.getTransform().getRotationY() - 45)) * -1 + player.getX();
+            double ysetp = .15 * Math.sin(Math.toRadians(camera.getTransform().getRotationX())) + player.getY() - .1;
+            double distp = .15 * Math.cos(Math.toRadians(camera.getTransform().getRotationX()));
+            double zsetp = distp * Math.cos(Math.toRadians(camera.getTransform().getRotationY() - 45)) * -1 + player.getZ();
+            double xsetp = distp * Math.sin(Math.toRadians(camera.getTransform().getRotationY() - 45)) * -1 + player.getX();
+            Point3D pivot = new Point3D(ysetp, zsetp, xsetp);
+            double yset = .1 * Math.sin(Math.toRadians(camera.getTransform().getRotationX())) + ysetp;
+            double dist = .1 * Math.cos(Math.toRadians(camera.getTransform().getRotationX()));
+            double zset = .15 * Math.cos(Math.toRadians(camera.getTransform().getRotationY())) * -1 + zsetp;
+            double xset = .15 * Math.sin(Math.toRadians(camera.getTransform().getRotationY())) * -1 + xsetp;
+            System.out.println(player.getPosition3D().getX() + " " + xsetp + " " + xset);
             camera.getTransform().setPosition3D(xset, yset, zset);
             playerRotate();
         }
