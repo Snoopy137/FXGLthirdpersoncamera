@@ -10,48 +10,44 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.Group;
 import javafx.util.Duration;
 
 /**
  *
  * @author mis_p
  */
-public class Animation {
+public class DukeAnimation {
 
     IntegerProperty keyCycle = new SimpleIntegerProperty();
     KeyValue dukeStart = new KeyValue(keyCycle, 0);
     KeyValue dukeEnd = new KeyValue(keyCycle, 14);
-    KeyFrame dukeKey = new KeyFrame(Duration.millis(800), dukeStart, dukeEnd);
+    KeyFrame dukeKey = new KeyFrame(Duration.millis(300), dukeStart, dukeEnd);
     public Timeline dukeLine = new Timeline(dukeKey);
     int cont;
     List<List<CustomShape3D.MeshVertex>> dukesAnimation = new ArrayList<>();
-    List<Property<Number>> y = new ArrayList<>();
-    List<Property<Number>> x = new ArrayList<>();
-    List<Property<Number>> z = new ArrayList<>();
+
+    public DukeAnimation() {
+        getFrames();
+    }
 
     public void createAnimation(Entity player) {
-        getFrames();
+//        getFrames();
         dukeLine.setCycleCount(1);
-        Model3D model = (Model3D) player.getViewComponent().getChildren().get(0);
-        cont = 0;
-        model.getVertices().forEach(v -> {
-            v.yProperty().bind(y.get(cont));
-            v.xProperty().bind(x.get(cont));
-            v.zProperty().bind(z.get(cont));
-            cont++;
-        });
-        cont = 0;
         keyCycle.addListener((o) -> {
-            x.clear();
-            y.clear();
-            z.clear();
-            dukesAnimation.get(keyCycle.get())
+            Group g = (Group) player.getViewComponent().getChildren().get(0);
+            Model3D model = (Model3D) g.getChildren().get(0);
+            //the below code does not update vertices, left there just as an example
+//            model.getVertices().clear();
+//            model.getVertices().addAll(dukesAnimation.get(keyCycle.get()).getVertices());
+/////////////////////////////////////////////separator////////////////////////////////////////////////////////////////
+            cont = 0;
+            model.getVertices()
                     .forEach(v -> {
-                        y.add(v.yProperty());
-                        x.add(v.xProperty());
-                        z.add(v.zProperty());
+                        v.setX(dukesAnimation.get(keyCycle.get()).get(cont).getX());
+                        v.setY(dukesAnimation.get(keyCycle.get()).get(cont).getY());
+                        v.setZ(dukesAnimation.get(keyCycle.get()).get(cont).getZ());
                         cont++;
                     });
             if (keyCycle.get() == 14) {
@@ -65,11 +61,8 @@ public class Animation {
     }
 
     public void getFrames() {
-        for (int i = 0; i <= 15; i++) {
+        for (int i = 0; i < 15; i++) {
             dukesAnimation.add(getAssetLoader().loadModel3D("java-duke" + i + ".obj").getVertices());
-            dukesAnimation.get(i).forEach(v -> y.add(v.yProperty()));
-            dukesAnimation.get(i).forEach(v -> z.add(v.zProperty()));
-            dukesAnimation.get(i).forEach(v -> x.add(v.xProperty()));
         }
     }
 }

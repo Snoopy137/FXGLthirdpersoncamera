@@ -12,7 +12,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import javafx.animation.SequentialTransition;
+import javafx.geometry.Point3D;
+import javafx.scene.Group;
+import javafx.scene.SpotLight;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
@@ -31,7 +33,7 @@ public class GameFactory implements EntityFactory {
     public Entity newWallr(SpawnData data) {
         var view = new Box(.4, 10, 20);
         return entityBuilder(data)
-                .type(EntityType.WALL)
+                .type(EntityType.WALLR)
                 .bbox(BoundingShape.box3D(.4, 10, 20))
                 .view(view)
                 .collidable()
@@ -43,7 +45,7 @@ public class GameFactory implements EntityFactory {
         var view = new Box(.4, 10, 20);
         view.setMaterial(new PhongMaterial(Color.BROWN));
         return entityBuilder(data)
-                .type(EntityType.WALL)
+                .type(EntityType.WALLL)
                 .bbox(BoundingShape.box3D(.4, 10, 20))
                 .view(view)
                 .collidable()
@@ -64,6 +66,7 @@ public class GameFactory implements EntityFactory {
     @Spawns("floor")
     public Entity newFloor(SpawnData data) {
         var view = new Box(20, .4, 20);
+        view.setMaterial(new PhongMaterial(Color.TURQUOISE));
         return entityBuilder(data)
                 .type(EntityType.FLOOR)
                 .bbox(BoundingShape.box3D(20, .4, 20))
@@ -75,12 +78,43 @@ public class GameFactory implements EntityFactory {
     @Spawns("player")
     public Entity newPlayer(SpawnData data) throws IOException {
         Model3D root = getAssetLoader().loadModel3D("java-duke0.obj");
-        SequentialTransition calloutAnimation = new SequentialTransition();
+        SpotLight spot = new SpotLight(Color.WHITE);
+        spot.setDirection(new Point3D(0, 5, 0));
+        spot.setInnerAngle(.9);
+        spot.setOuterAngle(1.2);
+        spot.setTranslateX(0);
+        spot.setTranslateY(-5);
+        spot.setTranslateZ(0);
+        Group g = new Group(root, spot);
         return entityBuilder(data)
                 .type(EntityType.PLAYER)
-                .bbox(BoundingShape.box3D(.26, .26, 1.1))
-                .view(root)
+                .bbox(BoundingShape.box3D(.2, .2, .1))
+                .view(g)
                 .collidable()
-                .buildAndAttach();
+                .build();
+    }
+
+    @Spawns("enemy")
+    public Entity newEnemy(SpawnData data) throws IOException {
+        Model3D root = getAssetLoader().loadModel3D("DukerZombie/java-dukezombie04.obj");
+        SpotLight spot = new SpotLight(Color.DARKGREEN);
+        spot.setDirection(new Point3D(0, 5, 0));
+        spot.setInnerAngle(.5);
+        spot.setOuterAngle(.5);
+        spot.setTranslateX(0);
+        spot.setTranslateY(-5);
+        spot.setTranslateZ(0);
+//        SpotLight spot1 = new SpotLight(Color.GREEN);
+//        spot1.setDirection(new Point3D(0, 0, -1));
+//        spot1.setTranslateX(0);
+//        spot1.setTranslateY(0);
+//        spot1.setTranslateZ(2);
+        Group enemy = new Group(root, spot);
+        return entityBuilder(data)
+                .type(EntityType.ENEMY)
+                .bbox(BoundingShape.box3D(.2, .2, .2))
+                .view(enemy)
+                .collidable()
+                .build();
     }
 }

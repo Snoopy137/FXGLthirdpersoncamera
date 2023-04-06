@@ -8,13 +8,17 @@ import static com.almasb.fxgl.dsl.FXGL.getGameScene;
 import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
 import static com.almasb.fxgl.dsl.FXGL.spawn;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.animationBuilder;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.entityBuilder;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getPhysicsWorld;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.onKey;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.geometry.Point3D;
+import javafx.scene.Group;
+import javafx.scene.PointLight;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 /**
@@ -26,10 +30,12 @@ public class testing3d extends GameApplication {
     private static Camera3D camera;
     Entity player;
     Entity ground;
+    Entity ambient;
     double distance = .5;
     GameFactory factory = new GameFactory();
-    Animation animation = new Animation();
-    boolean aim = true;
+    DukeAnimation animation;
+    boolean aim = false;
+    Entity enemy;
 //    List<Model3D> dukesAnimation = new ArrayList<>();
 
     public static void main(String args[]) {
@@ -45,6 +51,7 @@ public class testing3d extends GameApplication {
 
     @Override
     protected void initGame() {
+        animation = new DukeAnimation();
         getGameWorld().addEntityFactory(factory);
         player = spawn("player", 0, 4.8, 0);
         animation.createAnimation(player);
@@ -52,55 +59,46 @@ public class testing3d extends GameApplication {
         ground = spawn("floor", 0, 5, 0);
         var rightwall = spawn("wallr", 10, 0, .2);
         var leftwall = spawn("walll", -10, 0, 0.2);
+        enemy = spawn("enemy", 0, 4.8, 2);
         //var roof = spawn("roof", 0, -5, 0);
         getGameScene().setFPSCamera(true);
-//        for (int i = 0; i <= 15; i++) {
-//            dukesAnimation.add(getAssetLoader().loadModel3D("java-duke" + i + ".obj"));
-//        }
-//        createAnimation();
-        ground.getViewComponent().addEventHandler(ScrollEvent.SCROLL, (s) -> {
-            if (s.getDeltaY() < 0) {
-                if (distance < 3) {
-                    distance += .040;
-                }
-            }
-            if (s.getDeltaY() > 0) {
-                if (distance > .26) {
-                    distance -= .040;
-                }
-            }
-        });
+        PointLight spot = new PointLight(Color.WHITE);
+        spot.setTranslateX(2);
+        spot.setTranslateY(-3);
+        spot.setTranslateZ(6);
+        Group g = new Group(spot);
+        getGameScene().addChild(g);
+        ambient = entityBuilder()
+                .view(g)
+                .buildAndAttach();
     }
 
     @Override
     protected void initInput() {
         onKey(KeyCode.W, () -> {
-//            if (keyCycle.get() == 14) {
-//                keyCycle.set(0);
-//            }
-//            dukeLine.play();
             //if you want the player to hold directtion until is moved uncomment following line
             animation.getTimeline().play();
             playerRotate();
-            player.getTransformComponent().moveForward(.1);
+            System.out.println("distance " + player.getTransformComponent().distance3D(enemy.getTransformComponent()));
+            player.getTransformComponent().moveForward(.05);
             return null;
         });
         onKey(KeyCode.A, () -> {
             //if you want the player to hold directtion until is moved uncomment following line
             playerRotate();
-            player.getTransformComponent().moveLeft(.1);
+            player.getTransformComponent().moveLeft(.05);
             return null;
         });
         onKey(KeyCode.S, () -> {
             //if you want the player to hold directtion until is moved uncomment following line
             playerRotate();
-            player.getTransformComponent().moveBack(.1);
+            player.getTransformComponent().moveBack(.05);
             return null;
         });
         onKey(KeyCode.D, () -> {
             //if you want the player to hold directtion until is moved uncomment following line
             playerRotate();
-            player.getTransformComponent().moveRight(.1);
+            player.getTransformComponent().moveRight(.05);
             return null;
         });
         onKey(KeyCode.E, () -> {
@@ -116,6 +114,23 @@ public class testing3d extends GameApplication {
                 distance -= .015;
             }
             return null;
+        });
+        onKey(KeyCode.T, () -> {
+            aim = true;
+            return null;
+        });
+
+        getGameScene().getRoot().addEventHandler(ScrollEvent.SCROLL, (s) -> {
+            if (s.getDeltaY() < 0) {
+                if (distance < 3) {
+                    distance += .040;
+                }
+            }
+            if (s.getDeltaY() > 0) {
+                if (distance > .26) {
+                    distance -= .040;
+                }
+            }
         });
     }
 
@@ -152,15 +167,20 @@ public class testing3d extends GameApplication {
             double zset = dist * Math.cos(Math.toRadians(camera.getTransform().getRotationY())) * -1 + player.getZ();
             double xset = dist * Math.sin(Math.toRadians(camera.getTransform().getRotationY())) * -1 + player.getX();
             camera.getTransform().setPosition3D(xset, yset, zset);
-            playerRotate();
         } else {
-            double yset = .2 * Math.sin(Math.toRadians(camera.getTransform().getRotationX() - 45)) + player.getY();
-            double dist = (.2 * Math.cos(Math.toRadians(camera.getTransform().getRotationX())));
-            double zset = dist * Math.cos(Math.toRadians(camera.getTransform().getRotationY() - 45)) * -1 + player.getZ();
-            double xset = dist * Math.sin(Math.toRadians(camera.getTransform().getRotationY() - 45)) * -1 + player.getX();
-            camera.getTransform().setPosition3D(xset, yset, zset);
+            double zsetp = .15 * Math.cos(Math.toRadians(camera.getTransform().getRotationY() - 90)) * -1 + player.getZ();
+            double xsetp = .15 * Math.sin(Math.toRadians(camera.getTransform().getRotationY() - 90)) * -1 + player.getX();
+            double yset = .15 * Math.sin(Math.toRadians(camera.getTransform().getRotationX())) + player.getY() - .15;
+            double dist = .15 * Math.cos(Math.toRadians(camera.getTransform().getRotationX()));
+            double zset = dist * Math.cos(Math.toRadians(camera.getTransform().getRotationY())) * -1 + zsetp;
+            double xset = dist * Math.sin(Math.toRadians(camera.getTransform().getRotationY())) * -1 + xsetp;
+            //0.0 -3.061616997868383E-17 -90.0
+//            System.out.println(yset);
+            camera.getTransform().setPosition3D(xset, player.getY() - .15, zset);
             playerRotate();
         }
+        aim = false;
+//        playerRotate();
         //this line makes the object to rotate along with the camera, if you comment this line and do no remove the comments
         //from inputs that move the player the 3d direction will not be updated
         //calling the rotation here means player will turn along with the camera and can only be look at from behind
@@ -169,34 +189,64 @@ public class testing3d extends GameApplication {
 
     private void playerRotate() {
         //an animation to rotate the player
+        double x = aim ? camera.getTransform().getRotationX() : 0;
         animationBuilder()
                 .duration(Duration.millis(100))
                 .autoReverse(false)
                 .rotate(player)
                 .from(new Point3D(player.getTransformComponent().getRotationX(), player.getTransformComponent().getRotationY(), player.getTransformComponent().getRotationZ()))
-                .to(new Point3D(0, camera.getTransform().getRotationY(), camera.getTransform().getRotationZ()))
+                .to(new Point3D(x, camera.getTransform().getRotationY(), camera.getTransform().getRotationZ()))
                 .buildAndPlay();
     }
 
     @Override
     protected void initPhysics() {
         //testing applying 3d physics since jbox is only for 2d - NOT COMPLETE
-        getPhysicsWorld().setGravity(0, 10);
-        getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.WALL) {
-
-            Point3D pos;
+        getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.FLOOR) {
 
             // order of types is the same as passed into the constructor
             @Override
-            protected void onCollisionBegin(Entity player, Entity wall) {
-                pos = player.getTransformComponent().getPosition3D();
-                player.getTransformComponent().setPosition3D(pos);
+            protected void onCollisionBegin(Entity player, Entity flor) {
+                player.setY(flor.getY() - flor.getHeight() / 2);
             }
 
             @Override
             protected void onCollision(Entity a, Entity b) {
-                player.getTransformComponent().setPosition3D(pos);
+                //player.getTransformComponent().setPosition3D(pos);
+            }
+        });
+
+        getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.ENEMY) {
+
+            // order of types is the same as passed into the constructor
+            @Override
+            protected void onCollisionBegin(Entity player, Entity enemy) {
+                System.out.println(player.getZ() + " " + enemy.getZ());
+            }
+
+            @Override
+            protected void onCollision(Entity a, Entity b) {
+                //player.getTransformComponent().setPosition3D(pos);
+            }
+        });
+        getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.WALLL) {
+
+            // order of types is the same as passed into the constructor
+            @Override
+            protected void onCollisionBegin(Entity player, Entity walll) {
+
+            }
+
+            @Override
+            protected void onCollision(Entity player, Entity walll) {
+
+            }
+
+            @Override
+            protected void onCollisionEnd(Entity player, Entity walll) {
+//                player.setX(walll.getX() + walll.getWidth() / 2 + player.getWidth() / 2);
             }
         });
     }
+
 }
