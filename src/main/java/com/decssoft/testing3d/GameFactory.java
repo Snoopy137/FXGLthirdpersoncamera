@@ -1,7 +1,7 @@
 package com.decssoft.testing3d;
 
-import static com.almasb.fxgl.dsl.FXGLForKtKt.entityBuilder;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getAssetLoader;
+import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
+import static com.almasb.fxgl.dsl.FXGL.getAssetLoader;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
@@ -100,15 +100,16 @@ public class GameFactory implements EntityFactory {
         Group g = new Group(root, spot);
         return entityBuilder(data)
                 .type(EntityType.PLAYER)
-                .bbox(BoundingShape.box3D(.2, .2, .1))
+                .bbox(BoundingShape.box3D(.13, .13, .13))
                 .view(g)
                 .collidable()
+                .with(new DukeAnimation())
                 .build();
     }
 
     @Spawns("enemy")
     public Entity newEnemy(SpawnData data) throws IOException {
-        Model3D root = getAssetLoader().loadModel3D("DukerZombie/java-dukezombie04.obj");
+        Model3D root = getAssetLoader().loadModel3D("DukerZombie/java-dukezombie06.obj");
         SpotLight spot = new SpotLight(Color.DARKGREEN);
         spot.setDirection(new Point3D(0, 5, 0));
         spot.setInnerAngle(.5);
@@ -124,7 +125,7 @@ public class GameFactory implements EntityFactory {
         Group enemy = new Group(root, spot);
         return entityBuilder(data)
                 .type(EntityType.ENEMY)
-                .bbox(BoundingShape.box3D(.2, .2, .2))
+                .bbox(BoundingShape.box3D(.13, .13, .13))
                 .view(enemy)
                 .collidable()
                 .build();

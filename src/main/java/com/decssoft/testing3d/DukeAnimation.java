@@ -1,7 +1,8 @@
 package com.decssoft.testing3d;
 
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getAssetLoader;
+import static com.almasb.fxgl.dsl.FXGL.getAssetLoader;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.scene3d.CustomShape3D;
 import com.almasb.fxgl.scene3d.Model3D;
 import java.util.ArrayList;
@@ -18,12 +19,13 @@ import javafx.util.Duration;
  *
  * @author mis_p
  */
-public class DukeAnimation {
+public class DukeAnimation extends Component {
 
+    Double playerHeigh = 4.8;
     IntegerProperty keyCycle = new SimpleIntegerProperty();
     KeyValue dukeStart = new KeyValue(keyCycle, 0);
     KeyValue dukeEnd = new KeyValue(keyCycle, 14);
-    KeyFrame dukeKey = new KeyFrame(Duration.millis(300), dukeStart, dukeEnd);
+    KeyFrame dukeKey = new KeyFrame(Duration.millis(500), dukeStart, dukeEnd);
     public Timeline dukeLine = new Timeline(dukeKey);
     int cont;
     List<List<CustomShape3D.MeshVertex>> dukesAnimation = new ArrayList<>();
@@ -33,7 +35,6 @@ public class DukeAnimation {
     }
 
     public void createAnimation(Entity player) {
-//        getFrames();
         dukeLine.setCycleCount(1);
         keyCycle.addListener((o) -> {
             Group g = (Group) player.getViewComponent().getChildren().get(0);
@@ -50,10 +51,29 @@ public class DukeAnimation {
                         v.setZ(dukesAnimation.get(keyCycle.get()).get(cont).getZ());
                         cont++;
                     });
+            player.getTransformComponent().moveForward(.15 / 15);
             if (keyCycle.get() == 14) {
                 keyCycle.set(0);
             }
         });
+    }
+
+    public void setheight(double height) {
+        this.playerHeigh = height;
+    }
+
+    public double getHeight() {
+        return playerHeigh;
+    }
+
+    @Override
+    public void onUpdate(double tpf) {
+        if (playerHeigh.compareTo(getEntity().getY()) == -1) {
+            getEntity().translateY(-.5 * tpf);
+        }
+        if (playerHeigh.compareTo(getEntity().getY()) == 1) {
+            getEntity().translateY(.5 * tpf);
+        }
     }
 
     public Timeline getTimeline() {
